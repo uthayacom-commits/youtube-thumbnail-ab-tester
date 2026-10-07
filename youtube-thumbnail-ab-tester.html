@@ -1,0 +1,1133 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>YouTube Thumbnail A/B Tester: Preview Your CTR | ThumbHD</title>
+    <meta name="description" content="Preview your YouTube thumbnail in a live mock feed. A/B test designs against real competitors in dark mode, light mode, and mobile view before you publish.">
+    <link rel="canonical" href="https://www.thumbhd.com/youtube-thumbnail-ab-tester">
+    
+    <!-- Icons -->
+    <link rel="icon" href="/favicon.ico">
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = {
+            darkMode: 'class',
+            theme: {
+                extend: {
+                    colors: {
+                        accent: '#ef4444',
+                        bgBase: 'var(--bg-base)',
+                        bgPanel: 'var(--bg-surface)',
+                        borderDim: 'var(--border-dim)',
+                        textPrimary: 'var(--text-primary)',
+                        textSecondary: 'var(--text-secondary)',
+                        ytDarkBg: '#0f0f0f',
+                        ytLightBg: '#ffffff',
+                        ytDarkText: '#f1f1f1',
+                        ytLightText: '#0f0f0f',
+                        ytDarkTextSec: '#aaaaaa',
+                        ytLightTextSec: '#606060',
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        yt: ['Roboto', 'Arial', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&family=Roboto:wght@400;500;700&display=swap" rel="stylesheet">
+    
+    <style>
+        body { font-family: 'Inter', sans-serif; }
+        .yt-font { font-family: 'Roboto', Arial, sans-serif; }
+        .glass-panel {
+            background: rgba(30, 30, 42, 0.7);
+            backdrop-filter: blur(12px);
+            -webkit-backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+        /* Custom Scrollbar */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #030306; }
+        ::-webkit-scrollbar-thumb { background: #262626; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #404040; }
+        
+        /* Light Theme Overrides for Feed */
+        .yt-light-theme {
+            background-color: var(--bg-base) !important;
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        .yt-light-theme #ytHeader,
+        .yt-light-theme #ytSidebar,
+        .yt-light-theme #ytChips,
+        .yt-light-theme #videoPlayerContainer,
+        .yt-light-theme #ytBottomNav {
+            border-color: rgba(0,0,0,0.1) !important;
+        }
+        .yt-light-theme #videoPlayerContainer {
+            background-color: var(--bg-base) !important;
+        }
+        .yt-light-theme .text-textPrimary:not(.bg-black\/80):not(.rounded-full):not(.thumbnail-container *) {
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme .text-\[\#aaaaaa\],
+        .yt-light-theme .text-\[\#a1a1aa\] {
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme .bg-\[\#121212\] {
+            background-color: var(--bg-base) !important;
+            border-color: var(--text-primary) !important;
+        }
+        .yt-light-theme .bg-\[\#222222\] {
+            background-color: var(--bg-base) !important;
+            border-color: var(--text-primary) !important;
+        }
+        .yt-light-theme .hover\:bg-\[\#303030\]:hover {
+            background-color: var(--bg-base) !important;
+        }
+        .yt-light-theme .bg-\[\#27272a\] {
+            background-color: var(--bg-base) !important;
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme .bg-\[\#0f0f0f\] {
+            background-color: var(--bg-base) !important;
+        }
+        .yt-light-theme .hover\:bg-\[\#3f3f46\]:hover {
+            background-color: var(--bg-base) !important;
+        }
+        .yt-light-theme .bg-white.text-black {
+            background-color: var(--bg-base) !important;
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme input.text-textPrimary {
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme input::placeholder {
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme .hover\:text-textPrimary:hover {
+            color: var(--text-primary) !important;
+        }
+        .yt-light-theme .bg-\[\#1e1e2a\] {
+            background-color: var(--bg-base) !important;
+        }
+        .yt-light-theme .bg-\[\#1e40af\] {
+            background-color: var(--bg-base) !important;
+        }
+        
+        /* YouTube specific styles */
+        .yt-title {
+            display: -webkit-box;
+            -webkit-line-clamp: 2;
+            -webkit-box-orient: vertical;
+            overflow: hidden;
+            text-overflow: ellipsis;
+        }
+    </style>
+    
+    <script type="application/ld+json">
+    {
+      "@context": "https://schema.org",
+      "@type": "FAQPage",
+      "mainEntity": [{
+        "@type": "Question",
+        "name": "How do I preview my YouTube thumbnail before uploading?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The most effective way to preview your design is by using a dedicated YouTube Thumbnail Simulator. Instead of viewing your high-resolution image inside editing software like Photoshop, a simulator places your design into a mocked-up YouTube feed. This allows you to check how your image looks next to competitors, verify it scales correctly for mobile devices, and ensure platform UI elements don't cover your text."
+        }
+      }, {
+        "@type": "Question",
+        "name": "What is the \"Blink Test\" for YouTube thumbnails?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The \"Blink Test\" is a rapid A/B testing method used by professional creators to determine visual hierarchy. By loading two different thumbnail designs into a simulator and rapidly toggling between them (often using a spacebar shortcut), you force your brain to instinctively identify which design has better contrast, readability, and emotional impact within a fraction of a second."
+        }
+      }, {
+        "@type": "Question",
+        "name": "Does YouTube have a native A/B testing tool?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Yes, YouTube offers a native \"Test & Compare\" feature inside YouTube Studio. However, this tool can take up to 14 days to declare a winning thumbnail. Because the first 24 hours of a video's lifespan are the most critical for triggering the recommendation algorithm, launching with a weak \"Version A\" can kill your video's momentum. Pre-upload simulation ensures you launch with your strongest asset on day one."
+        }
+      }, {
+        "@type": "Question",
+        "name": "Why do my thumbnails look bad on mobile devices?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "Over 70% of YouTube traffic occurs on mobile devices. When a thumbnail scales down to the size of a smartphone screen, small text, low-contrast colors, and cluttered backgrounds become completely unreadable. A preview simulator allows you to instantly switch to a \"Mobile View\" to guarantee your core hook remains legible at a microscopic scale."
+        }
+      }, {
+        "@type": "Question",
+        "name": "What is the YouTube Thumbnail Safe Zone?",
+        "acceptedAnswer": {
+          "@type": "Answer",
+          "text": "The Safe Zone is the area of your thumbnail that remains perfectly visible once uploaded to YouTube. The platform automatically overlays a black \"duration badge\" (timestamp) in the bottom-right corner of every video, along with \"Watch Later\" icons in the top-right. A proper simulator maps these UI overlays onto your image, ensuring you never accidentally place key text or faces under the timestamp."
+        }
+      }]
+    }
+    </script>
+</head>
+<body class="bg-bgBase text-textPrimary min-h-screen flex flex-col antialiased selection:bg-accent selection:text-white">
+
+    <!-- Header -->
+    <div id="global-header"></div>
+    <div id="global-breadcrumbs"></div>
+
+    <main class="flex-grow flex flex-col items-center py-6 md:py-8 px-4 w-full max-w-[1200px] mx-auto gap-6 md:gap-8">
+        <!-- Hero -->
+        <div class="text-center max-w-3xl">
+            <h1 class="text-2xl md:text-4xl font-extrabold tracking-tight text-textPrimary mb-4">
+                YouTube Thumbnail Preview Simulator & A/B Tester
+            </h1>
+            <p class="text-base md:text-lg text-textSecondary">
+                See exactly how your thumbnail looks in the wild before you publish. A/B test against real competitors in Dark Mode & Mobile View.
+            </p>
+        </div>
+
+        <!-- Top Section (Control Deck) -->
+        <div class="w-full bg-[#0f0f13] rounded-2xl p-6 border border-[#262626] flex flex-col gap-6">
+            <!-- Drop Zones -->
+            <div class="flex flex-col md:flex-row gap-4 md:gap-6">
+                <!-- Design A -->
+                <div class="flex-1 border border-dashed border-[#3f3f46] rounded-xl p-6 md:p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#a855f7] transition-colors relative overflow-hidden" onclick="document.getElementById('imageA').click()">
+                    <input type="file" id="imageA" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'A')">
+                    <div id="uploadTextA" class="flex flex-col items-center z-10">
+                        <div class="bg-[#2e1065] text-[#d8b4fe] text-[10px] font-bold px-3 py-1 rounded-full mb-4 tracking-wider">DESIGN A</div>
+                        <div class="text-base md:text-lg font-bold text-textPrimary mb-1">Drop thumbnail A here</div>
+                        <div class="text-xs md:text-sm text-[#71717a]">JPG, PNG, WebP</div>
+                    </div>
+                    <img id="previewA" src="" class="absolute inset-0 w-full h-full object-cover hidden z-0">
+                </div>
+                <!-- Design B -->
+                <div class="flex-1 border border-dashed border-[#3f3f46] rounded-xl p-6 md:p-8 flex flex-col items-center justify-center cursor-pointer hover:border-[#3b82f6] transition-colors relative overflow-hidden" onclick="document.getElementById('imageB').click()">
+                    <input type="file" id="imageB" accept="image/*" class="hidden" onchange="handleImageUpload(event, 'B')">
+                    <div id="uploadTextB" class="flex flex-col items-center z-10">
+                        <div class="bg-[#1e3a8a] text-[#93c5fd] text-[10px] font-bold px-3 py-1 rounded-full mb-4 tracking-wider">DESIGN B</div>
+                        <div class="text-base md:text-lg font-bold text-textPrimary mb-1">Drop thumbnail B here</div>
+                        <div class="text-xs md:text-sm text-[#71717a]">Optional — test alone or A vs B</div>
+                    </div>
+                    <img id="previewB" src="" class="absolute inset-0 w-full h-full object-cover hidden z-0">
+                </div>
+            </div>
+
+            <!-- Toolbar -->
+            <div class="flex flex-col xl:flex-row items-center justify-between gap-4 pt-4 border-t border-[#262626]">
+                <div class="flex flex-wrap items-center gap-6">
+                    <!-- Surface -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-[#71717a] tracking-wider uppercase">Surface</span>
+                        <div class="flex gap-2 flex-wrap">
+                            <button id="btnHome" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2e1065] text-[#d8b4fe] text-xs font-semibold border border-[#4c1d95]" onclick="setSurface('home')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7"></rect><rect x="14" y="3" width="7" height="7"></rect><rect x="14" y="14" width="7" height="7"></rect><rect x="3" y="14" width="7" height="7"></rect></svg>
+                                HOME FEED
+                            </button>
+                            <button id="btnMobile" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]" onclick="setSurface('mobile')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect><line x1="12" y1="18" x2="12.01" y2="18"></line></svg>
+                                MOBILE
+                            </button>
+                            <button id="btnSearch" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]" onclick="setSurface('search')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                                SEARCH
+                            </button>
+                            <button id="btnSuggested" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]" onclick="setSurface('suggested')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="5 3 19 12 5 21 5 3"></polygon></svg>
+                                SUGGESTED
+                            </button>
+                            <button id="btnNotification" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]" onclick="setSurface('notification')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                                NOTIFICATION
+                            </button>
+                        </div>
+                    </div>
+                    <!-- Theme -->
+                    <div class="flex items-center gap-2">
+                        <span class="text-[10px] font-bold text-[#71717a] tracking-wider uppercase">Theme</span>
+                        <div class="flex gap-2">
+                            <button id="btnDark" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2e1065] text-[#d8b4fe] text-xs font-semibold border border-[#4c1d95]" onclick="setTheme('dark')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path></svg>
+                                DARK
+                            </button>
+                            <button id="btnLight" class="flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]" onclick="setTheme('light')">
+                                <svg class="w-3 h-3" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"></circle><line x1="12" y1="1" x2="12" y2="3"></line><line x1="12" y1="21" x2="12" y2="23"></line><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line><line x1="1" y1="12" x2="3" y2="12"></line><line x1="21" y1="12" x2="23" y2="12"></line><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line></svg>
+                                LIGHT
+                            </button>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="flex items-center gap-3">
+                    <button class="flex items-center gap-2 px-4 py-2 rounded-lg bg-transparent text-[#a1a1aa] text-sm font-semibold border border-[#3f3f46] hover:bg-[#27272a]">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg> Auto
+                    </button>
+                    <div class="flex items-center gap-2">
+                        <button id="swapBtn" class="flex items-center gap-2 px-6 py-2 rounded-lg bg-gradient-to-r from-[#a855f7] to-[#d946ef] text-white text-sm font-bold shadow-lg hover:opacity-90 transition-opacity" onclick="toggleAB(!isShowingB)">
+                            <svg class="w-4 h-4 text-yellow-300" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polygon></svg> Swap A↔B
+                        </button>
+                        <div class="px-2 py-1 rounded bg-[#27272a] border border-[#3f3f46] text-[#a1a1aa] text-[10px] font-mono">Space</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Bottom Section (Mock Feed) -->
+        <div class="w-full bg-[#0f0f0f] rounded-2xl overflow-hidden border border-[#262626] flex h-[800px] transition-all duration-500" id="feedContainer">
+            <!-- Sidebar -->
+            <div id="ytSidebar" class="w-[72px] flex flex-col items-center py-4 gap-6 border-r border-[#262626] hidden md:flex shrink-0">
+                <div class="flex flex-col items-center gap-1 cursor-pointer text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="text-[10px]">Home</span></div>
+                <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg><span class="text-[10px]">Shorts</span></div>
+                <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span class="text-[10px]">Subs</span></div>
+                <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"></rect><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"></path></svg><span class="text-[10px]">Library</span></div>
+                <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M3 3v5h5"></path><path d="M3.05 13A9 9 0 1 0 6 5.3L3 8"></path><polyline points="12 7 12 12 15 15"></polyline></svg><span class="text-[10px]">History</span></div>
+            </div>
+
+            <!-- Main Content -->
+            <div class="flex-1 flex flex-col relative overflow-hidden">
+                <!-- Mobile Status Bar (Hidden on Desktop) -->
+                <div id="ytStatusBar" class="hidden h-12 w-full flex items-center justify-between px-6 text-textPrimary text-sm font-semibold shrink-0 z-10">
+                    <span>9:41</span>
+                    <div class="flex items-center gap-1.5">
+                        <svg class="w-4 h-4" viewBox="0 0 24 24" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm0 18c-4.41 0-8-3.59-8-8s3.59-8 8-8 8 3.59 8 8-3.59 8-8 8z"/></svg>
+                        <div class="w-5 h-3 bg-white rounded-sm"></div>
+                    </div>
+                </div>
+
+                <!-- Top Header -->
+                <div class="h-14 flex items-center justify-between px-4 border-b border-[#262626] shrink-0" id="ytHeader">
+                    <div class="flex items-center gap-4">
+                        <svg id="headerMenuIcon" class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="18" x2="21" y2="18"></line></svg>
+                        <div class="flex items-center gap-1">
+                            <svg class="w-8 h-6 text-red-600" viewBox="0 0 24 24" fill="currentColor"><path d="M21.582,6.186c-0.23-0.86-0.908-1.538-1.768-1.768C18.254,4,12,4,12,4S5.746,4,4.186,4.418 c-0.86,0.23-1.538,0.908-1.768,1.768C2,7.746,2,12,2,12s0,4.254,0.418,5.814c0.23,0.86,0.908,1.538,1.768,1.768 C5.746,20,12,20,12,20s6.254,0,7.814-0.418c0.86-0.23,1.538-0.908,1.768-1.768C22,16.254,22,12,22,12S22,7.746,21.582,6.186z M9.996,15.005l0-6.01l5.518,3.005L9.996,15.005z"/></svg>
+                            <span class="text-xl font-bold tracking-tighter text-textPrimary">YouTube</span>
+                        </div>
+                    </div>
+                    <div id="headerSearchContainer" class="flex-1 max-w-2xl px-12 hidden md:block">
+                        <div class="flex items-center bg-[#121212] border border-[#303030] rounded-full overflow-hidden">
+                            <input type="text" placeholder="Search" class="flex-1 bg-transparent px-4 py-2 text-textPrimary focus:outline-none">
+                            <button class="px-5 py-2 bg-[#222222] border-l border-[#303030] hover:bg-[#303030]"><svg class="w-5 h-5 text-white" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg></button>
+                        </div>
+                    </div>
+                    <div id="headerDesktopIcons" class="flex items-center gap-4">
+                        <svg class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M23 7l-7 5 7 5V7z"></path><rect x="1" y="5" width="15" height="14" rx="2" ry="2"></rect></svg>
+                        <svg class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <div class="w-8 h-8 rounded-full bg-[#a855f7] flex items-center justify-center text-textPrimary font-bold">Y</div>
+                    </div>
+                    <div id="headerMobileIcons" class="hidden items-center gap-4">
+                        <svg class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="7" width="20" height="15" rx="2" ry="2"></rect><polyline points="17 2 12 7 7 2"></polyline></svg>
+                        <svg class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path><path d="M13.73 21a2 2 0 0 1-3.46 0"></path></svg>
+                        <svg class="w-6 h-6 text-textPrimary" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line></svg>
+                        <div class="w-6 h-6 rounded-full bg-[#a855f7] flex items-center justify-center text-textPrimary text-xs font-bold">Y</div>
+                    </div>
+                </div>
+
+                <!-- Scrollable Content Area -->
+                <div id="mainContentArea" class="flex-1 flex flex-col overflow-y-auto no-scrollbar">
+                    
+                    <!-- Video Player (Suggested View Only) -->
+                    <div id="videoPlayerContainer" class="hidden flex-1 p-6 items-center justify-center bg-[#0f0f0f] border-r border-[#262626]">
+                        <div class="w-full max-w-5xl aspect-video bg-[#1e1e2a] flex items-center justify-center overflow-hidden relative">
+                            <img id="videoPlayerImage" src="" class="w-full h-full object-contain hidden">
+                            <div id="videoPlayerPlaceholder" class="flex flex-col items-center justify-center text-[#a855f7]">
+                                <svg class="w-16 h-16 mb-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                <span class="text-xl font-bold tracking-widest uppercase">UPLOAD DESIGN A TO PREVIEW</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="rightColumn" class="flex flex-col w-full flex-1">
+                        <!-- Chips -->
+                        <div class="flex items-center gap-3 px-4 py-3 border-b border-[#262626] overflow-x-auto no-scrollbar shrink-0" id="ytChips">
+                        <button class="px-3 py-1.5 bg-white text-black rounded-lg text-sm font-medium whitespace-nowrap">All</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Gaming</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Tech</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Music</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Live</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Finance</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Cooking</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Shorts</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Trending</button>
+                    </div>
+                    
+                    <!-- Notification Header -->
+                    <div id="notificationHeader" class="hidden px-4 py-3 text-textPrimary font-medium text-base shrink-0">Notifications</div>
+
+                    <!-- Video Grid -->
+                    <div id="ytGrid" class="p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10">
+                    <!-- User Video -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <img id="userThumbnail" src="" class="w-full h-full object-cover hidden z-0">
+                            <div id="userThumbnailPlaceholder" class="flex flex-col items-center justify-center text-[#a855f7] z-10">
+                                <svg class="w-12 h-12 mb-2" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><circle cx="8.5" cy="8.5" r="1.5"></circle><polyline points="21 15 16 10 5 21"></polyline></svg>
+                                <span class="text-sm font-bold tracking-widest uppercase" id="userThumbnailPlaceholderText">UPLOAD DESIGN A</span>
+                            </div>
+                            <div id="badgeA" class="absolute top-2 left-2 bg-[#2e1065] text-[#d8b4fe] text-[10px] font-bold px-2 py-0.5 rounded shadow-lg hidden z-20">A</div>
+                            <div id="badgeB" class="absolute top-2 left-2 bg-[#1e3a8a] text-[#93c5fd] text-[10px] font-bold px-2 py-0.5 rounded shadow-lg hidden z-20">B</div>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide z-20">18:42</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-[#a855f7] flex items-center justify-center text-textPrimary font-bold flex-shrink-0 mt-0.5">Y</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Your Channel</span> posted a new video: <span id="notifVideoTitle">Your Video Title Here</span>
+                                </div>
+                                <input type="text" id="videoTitle" value="Your Video Title Here" class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1 bg-transparent border-none outline-none focus:ring-1 focus:ring-[#a855f7] rounded px-1 -ml-1 w-full" oninput="updateTitle()">
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Your Channel</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="text-red-500 yt-views-time">Premieres in 2 hours</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    Just now • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Your video description will appear here — make sure it starts with a strong hook that includes your main keyword...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 1 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">AI TOOLS 2025</span>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">18:42</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-red-600 flex items-center justify-center text-white font-bold flex-shrink-0 mt-0.5">M</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">MKBHD</span> posted a new video: I Tried Every New AI Tool — Here's What Actually Works
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">I Tried Every New AI Tool — Here's What Actually Works</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">MKBHD</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">3.2M views • 2 days ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    2 days ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 2 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">$299 LAPTOP</span>
+                            <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-600"></div>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">22:15</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-orange-500 flex items-center justify-center text-textPrimary font-bold flex-shrink-0 mt-0.5">L</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Linus Tech Tips</span> posted a new video: This $299 Laptop Destroyed My MacBook Pro
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">This $299 Laptop Destroyed My MacBook Pro</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Linus Tech Tips</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">8.1M views • 1 week ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    1 week ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 3 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">iPhone 17</span>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">11:08</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-green-600 flex items-center justify-center text-white font-bold flex-shrink-0 mt-0.5">D</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Dave2D</span> posted a new video: The iPhone 17 Problem Nobody Is Talking About
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">The iPhone 17 Problem Nobody Is Talking About</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Dave2D</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">1.9M views • 3 days ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    3 days ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 4 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e40af] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">30 DAYS AI</span>
+                            <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-600"></div>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">26:44</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-blue-600 flex items-center justify-center text-white font-bold flex-shrink-0 mt-0.5">M</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Mark Rober</span> posted a new video: I Replaced My Brain With ChatGPT for 30 Days
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">I Replaced My Brain With ChatGPT for 30 Days</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Mark Rober</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">22M views • 2 weeks ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    2 weeks ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 5 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">WINDOWS?</span>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">8:33</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-pink-600 flex items-center justify-center text-textPrimary font-bold flex-shrink-0 mt-0.5">T</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Techquickie</span> posted a new video: Why Everyone Is Switching Back to Windows
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">Why Everyone Is Switching Back to Windows</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Techquickie</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">945K views • 5 days ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    5 days ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Competitor 6 -->
+                    <div class="video-card flex flex-col gap-3 cursor-pointer group">
+                        <div class="thumbnail-container relative w-full aspect-video rounded-xl overflow-hidden bg-[#1e1e2a] flex items-center justify-center">
+                            <span class="text-3xl font-black text-textPrimary tracking-tighter">$50K SETUP</span>
+                            <div class="absolute bottom-0 left-0 right-0 h-1 bg-red-600"></div>
+                            <div class="absolute bottom-1.5 right-1.5 bg-black/80 text-textPrimary text-xs font-medium px-1.5 py-0.5 rounded yt-font tracking-wide">14:21</div>
+                        </div>
+                        <div class="video-details flex gap-3 pr-6">
+                            <div class="w-9 h-9 rounded-full bg-blue-500 flex items-center justify-center text-white font-bold flex-shrink-0 mt-0.5">U</div>
+                            <div class="flex flex-col flex-1">
+                                <div class="yt-notification-text hidden text-[13px] text-textPrimary leading-tight mb-1">
+                                    <span class="font-medium">Unbox Therapy</span> posted a new video: I Spent $50,000 Building the Ultimate PC Setup
+                                </div>
+                                <h3 class="yt-font font-medium text-textPrimary text-base leading-tight yt-title mb-1">I Spent $50,000 Building the Ultimate PC Setup</h3>
+                                <div class="yt-font text-sm text-[#aaaaaa] flex flex-col yt-subtitle-container">
+                                    <div class="flex items-center gap-1">
+                                        <span class="hover:text-textPrimary transition-colors">Unbox Therapy</span>
+                                        <span class="yt-separator hidden">•</span>
+                                        <span class="yt-views-time">5.7M views • 3 weeks ago</span>
+                                    </div>
+                                </div>
+                                <div class="yt-notification-time hidden text-[12px] text-[#aaaaaa]">
+                                    3 weeks ago • New video
+                                </div>
+                                <div class="yt-search-desc hidden text-xs text-[#aaaaaa] mt-2 line-clamp-2">Video description preview appears here with relevant keywords and content summary shown in search results...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                </div>
+                </div> <!-- End rightColumn -->
+                </div> <!-- End mainContentArea -->
+                
+                <!-- Mobile Bottom Nav (Hidden on Desktop) -->
+                <div id="ytBottomNav" class="hidden h-14 w-full border-t border-[#262626] bg-[#0f0f0f] flex items-center justify-around px-2 shrink-0 pb-1 z-10">
+                    <div class="flex flex-col items-center gap-1 cursor-pointer text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg><span class="text-[10px]">Home</span></div>
+                    <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polygon points="10 8 16 12 10 16 10 8"></polygon></svg><span class="text-[10px]">Shorts</span></div>
+                    <div class="flex items-center justify-center cursor-pointer text-textPrimary"><svg class="w-10 h-10 font-thin" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="16"></line><line x1="8" y1="12" x2="16" y2="12"></line></svg></div>
+                    <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><svg class="w-6 h-6" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline><line x1="16" y1="13" x2="8" y2="13"></line><line x1="16" y1="17" x2="8" y2="17"></line><polyline points="10 9 9 9 8 9"></polyline></svg><span class="text-[10px]">Subs</span></div>
+                    <div class="flex flex-col items-center gap-1 cursor-pointer text-[#aaaaaa] hover:text-textPrimary"><div class="w-6 h-6 rounded-full bg-[#a855f7] flex items-center justify-center text-textPrimary text-xs font-bold">Y</div><span class="text-[10px]">You</span></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- CTR Analyzer Promo Card -->
+        <div class="w-full bg-[#0f0f13] rounded-2xl p-8 border border-[#262626] border-t-0 relative overflow-hidden flex flex-col md:flex-row items-start md:items-center justify-between gap-6 mt-4">
+            <!-- Gradient Border Top -->
+            <div class="absolute top-0 left-0 right-0 h-[2px] bg-gradient-to-r from-[#ff2a5f] to-[#a855f7]"></div>
+            
+            <div class="flex flex-col gap-3 max-w-4xl">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-textPrimary mb-1">
+                    <path d="M6 18h8"/>
+                    <path d="M3 22h18"/>
+                    <path d="M14 22a7 7 0 1 0 0-14h-1"/>
+                    <path d="M9 14h2"/>
+                    <path d="M9 12a2 2 0 0 1-2-2V6h6v4a2 2 0 0 1-2 2Z"/>
+                    <path d="M12 6V3a1 1 0 0 0-1-1H9a1 1 0 0 0-1 1v3"/>
+                </svg>
+                <h2 class="text-xl font-bold text-textPrimary">Still not sure which design wins?</h2>
+                <p class="text-sm text-[#a1a1aa] leading-relaxed">
+                    The A/B Preview gives you gut-feel context. The Full CTR Analyzer gives you the math — contrast ratio, text density, subject detection, color vibrancy, and a /100 score with a prioritised fix list for each design.
+                </p>
+            </div>
+            
+            <a href="/youtube-thumbnail-ctr-analyzer" class="shrink-0 px-6 py-3 bg-[#ff2a5f] hover:bg-[#ff1550] text-textPrimary font-bold rounded-lg transition-colors flex items-center gap-2">
+                Run CTR Analysis &rarr;
+            </a>
+        </div>
+
+        <!-- Educational Content -->
+        <div class="w-full max-w-4xl mx-auto mt-16 mb-8 text-left flex flex-col gap-10">
+            <div>
+                <h2 class="text-2xl font-bold text-textPrimary mb-3">Stop Guessing. Start Simulating.</h2>
+                <p class="text-[#a1a1aa] leading-relaxed">
+                    A thumbnail that looks incredible on a 4K monitor inside your design software might completely disappear when placed in a crowded, high-contrast YouTube feed. Designing in a vacuum lies to you. Our simulator recreates the exact psychological viewing environment of your audience. By simulating platform UI overlays and viewport constraints, you can validate your visual hierarchy and fix CTR-killing mistakes before you ever hit publish.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold text-textPrimary mb-3">The "Blink Test" Advantage</h2>
+                <p class="text-[#a1a1aa] leading-relaxed">
+                    Human attention spans on YouTube are measured in milliseconds. Our tool features a seamless Rapid Swap mechanic engineered specifically for the "Blink Test." By loading Design A and Design B into the mock feed, you can rapidly toggle between them using your spacebar. This forces your brain to bypass logical analysis and instinctively identify which design naturally pulls the human eye faster. It is the ultimate gut-check for contrast, emotional impact, and instant readability.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold text-textPrimary mb-3">Competitor Context Injection</h2>
+                <p class="text-[#a1a1aa] leading-relaxed">
+                    You aren't competing in a vacuum; you are fighting for clicks against established creators. A bright yellow background might look great on its own, but if every other video in your niche uses yellow, you become invisible. Our simulator places your unreleased artwork directly next to mock competitor videos. By seeing your design in a populated grid, you instantly know whether your thumbnail creates a visual "pattern interrupt" or simply blends into the background noise.
+                </p>
+            </div>
+
+            <div>
+                <h2 class="text-2xl font-bold text-textPrimary mb-3">Mobile vs. Desktop Rendering</h2>
+                <p class="text-[#a1a1aa] leading-relaxed">
+                    With over 70% of YouTube watch time happening on mobile devices, a desktop-only preview is a critical blind spot. A font that reads perfectly on a laptop often becomes illegible, microscopic noise on a smartphone. Instantly switch the ThumbHD interface to simulate the Mobile Feed to verify your text scales correctly. Furthermore, we automatically apply the YouTube duration badge to the bottom-right corner, ensuring your UI Safe Zones are protected and your faces or text never get covered by platform timestamps.
+                </p>
+            </div>
+        </div>
+
+        <!-- FAQ Section -->
+        <div class="w-full max-w-4xl mx-auto mt-12 mb-8 text-left">
+            <h2 class="text-3xl font-extrabold text-textPrimary mb-8 text-center">Frequently Asked Questions</h2>
+            
+            <div class="flex flex-col gap-6">
+                <!-- FAQ 1 -->
+                <div class="bg-[#0f0f13] border border-[#262626] rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-textPrimary mb-3">1. How do I preview my YouTube thumbnail before uploading?</h3>
+                    <p class="text-[#a1a1aa] leading-relaxed">
+                        The most effective way to preview your design is by using a dedicated YouTube Thumbnail Simulator. Instead of viewing your high-resolution image inside editing software like Photoshop, a simulator places your design into a mocked-up YouTube feed. This allows you to check how your image looks next to competitors, verify it scales correctly for mobile devices, and ensure platform UI elements don't cover your text.
+                    </p>
+                </div>
+
+                <!-- FAQ 2 -->
+                <div class="bg-[#0f0f13] border border-[#262626] rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-textPrimary mb-3">2. What is the "Blink Test" for YouTube thumbnails?</h3>
+                    <p class="text-[#a1a1aa] leading-relaxed">
+                        The "Blink Test" is a rapid A/B testing method used by professional creators to determine visual hierarchy. By loading two different thumbnail designs into a simulator and rapidly toggling between them (often using a spacebar shortcut), you force your brain to instinctively identify which design has better contrast, readability, and emotional impact within a fraction of a second.
+                    </p>
+                </div>
+
+                <!-- FAQ 3 -->
+                <div class="bg-[#0f0f13] border border-[#262626] rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-textPrimary mb-3">3. Does YouTube have a native A/B testing tool?</h3>
+                    <p class="text-[#a1a1aa] leading-relaxed">
+                        Yes, YouTube offers a native "Test & Compare" feature inside YouTube Studio. However, this tool can take up to 14 days to declare a winning thumbnail. Because the first 24 hours of a video's lifespan are the most critical for triggering the recommendation algorithm, launching with a weak "Version A" can kill your video's momentum. Pre-upload simulation ensures you launch with your strongest asset on day one.
+                    </p>
+                </div>
+
+                <!-- FAQ 4 -->
+                <div class="bg-[#0f0f13] border border-[#262626] rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-textPrimary mb-3">4. Why do my thumbnails look bad on mobile devices?</h3>
+                    <p class="text-[#a1a1aa] leading-relaxed">
+                        Over 70% of YouTube traffic occurs on mobile devices. When a thumbnail scales down to the size of a smartphone screen, small text, low-contrast colors, and cluttered backgrounds become completely unreadable. A preview simulator allows you to instantly switch to a "Mobile View" to guarantee your core hook remains legible at a microscopic scale.
+                    </p>
+                </div>
+
+                <!-- FAQ 5 -->
+                <div class="bg-[#0f0f13] border border-[#262626] rounded-xl p-6">
+                    <h3 class="text-lg font-bold text-textPrimary mb-3">5. What is the YouTube Thumbnail Safe Zone?</h3>
+                    <p class="text-[#a1a1aa] leading-relaxed">
+                        The Safe Zone is the area of your thumbnail that remains perfectly visible once uploaded to YouTube. The platform automatically overlays a black "duration badge" (timestamp) in the bottom-right corner of every video, along with "Watch Later" icons in the top-right. A proper simulator maps these UI overlays onto your image, ensuring you never accidentally place key text or faces under the timestamp.
+                    </p>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Dynamic Tool Grid -->
+    <div id="dynamic-tool-grid" class="max-w-7xl mx-auto px-4 mt-8"></div>
+
+    <div id="global-footer"></div>
+
+    <script>
+        let imageAUrl = '';
+        let imageBUrl = '';
+        let isShowingB = false;
+        let currentTheme = 'dark';
+        let currentSurface = 'home';
+
+        function handleImageUpload(event, type) {
+            const file = event.target.files[0];
+            if (file) {
+                const url = URL.createObjectURL(file);
+                if (type === 'A') {
+                    imageAUrl = url;
+                    document.getElementById('previewA').src = url;
+                    document.getElementById('previewA').classList.remove('hidden');
+                    document.getElementById('uploadTextA').classList.add('hidden');
+                    
+                    if (!isShowingB) {
+                        document.getElementById('userThumbnail').src = url;
+                        document.getElementById('userThumbnail').classList.remove('hidden');
+                        document.getElementById('userThumbnailPlaceholder').classList.add('hidden');
+                        
+                        document.getElementById('videoPlayerImage').src = url;
+                        document.getElementById('videoPlayerImage').classList.remove('hidden');
+                        document.getElementById('videoPlayerPlaceholder').classList.add('hidden');
+                    }
+                } else {
+                    imageBUrl = url;
+                    document.getElementById('previewB').src = url;
+                    document.getElementById('previewB').classList.remove('hidden');
+                    document.getElementById('uploadTextB').classList.add('hidden');
+                    
+                    if (isShowingB) {
+                        document.getElementById('userThumbnail').src = url;
+                        document.getElementById('userThumbnail').classList.remove('hidden');
+                        document.getElementById('userThumbnailPlaceholder').classList.add('hidden');
+                        
+                        document.getElementById('videoPlayerImage').src = url;
+                        document.getElementById('videoPlayerImage').classList.remove('hidden');
+                        document.getElementById('videoPlayerPlaceholder').classList.add('hidden');
+                    }
+                }
+            }
+        }
+
+        function updateTitle() {
+            // Title is now updated directly in the input field in the grid
+        }
+
+        function setSurface(surface) {
+            currentSurface = surface;
+            const container = document.getElementById('feedContainer');
+            const sidebar = document.getElementById('ytSidebar');
+            const bottomNav = document.getElementById('ytBottomNav');
+            const statusBar = document.getElementById('ytStatusBar');
+            const header = document.getElementById('ytHeader');
+            const headerSearch = document.getElementById('headerSearchContainer');
+            const headerMobileIcons = document.getElementById('headerMobileIcons');
+            const headerDesktopIcons = document.getElementById('headerDesktopIcons');
+            const grid = document.getElementById('ytGrid');
+            const chips = document.getElementById('ytChips');
+            const mainContent = document.getElementById('mainContentArea');
+            
+            // Reset all buttons
+            const buttons = ['btnHome', 'btnMobile', 'btnSearch', 'btnSuggested', 'btnNotification'];
+            buttons.forEach(id => {
+                const btn = document.getElementById(id);
+                btn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]';
+            });
+
+            // Set active button
+            const activeBtn = document.getElementById('btn' + surface.charAt(0).toUpperCase() + surface.slice(1));
+            activeBtn.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2e1065] text-[#d8b4fe] text-xs font-semibold border border-[#4c1d95]';
+
+            // Apply layout changes based on surface
+            if (surface === 'mobile') {
+                container.className = 'bg-[#0f0f0f] overflow-hidden flex flex-col mx-auto w-[390px] h-[844px] rounded-[3rem] border-[14px] border-[#1e1e2a] shadow-2xl relative transition-all duration-500';
+                sidebar.classList.add('!hidden');
+                bottomNav.classList.remove('hidden');
+                statusBar.classList.remove('hidden');
+                headerSearch.classList.add('hidden');
+                headerMobileIcons.classList.remove('hidden');
+                headerMobileIcons.classList.add('flex');
+                headerDesktopIcons.classList.add('hidden');
+                
+                grid.className = 'grid grid-cols-1 gap-y-0 pb-6';
+                chips.classList.remove('hidden');
+                chips.innerHTML = `
+                    <button class="px-3 py-1.5 bg-white text-black rounded-lg text-sm font-medium whitespace-nowrap">All</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Gaming</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Tech</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Music</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Live</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Finance</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Cooking</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Shorts</button>
+                    <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Trending</button>
+                `;
+                chips.className = 'flex items-center gap-3 px-4 py-3 border-b border-[#262626] overflow-x-auto no-scrollbar shrink-0';
+                mainContent.className = 'flex-1 flex flex-col overflow-y-auto no-scrollbar';
+
+                document.querySelectorAll('.video-card').forEach(card => {
+                    card.classList.remove('gap-3', 'flex-row', 'gap-4');
+                    card.classList.add('gap-0', 'mb-4', 'flex-col');
+                    card.querySelector('.thumbnail-container').classList.remove('rounded-xl', 'w-[360px]', 'min-w-[360px]');
+                    card.querySelector('.thumbnail-container').classList.add('w-full');
+                    card.querySelector('.video-details').classList.add('p-3', 'pt-3');
+                    card.querySelector('.video-details').classList.remove('pr-6', 'py-1', 'pr-4');
+                    
+                    const avatar = card.querySelector('.rounded-full');
+                    if(avatar) avatar.classList.remove('hidden');
+                    
+                    const desc = card.querySelector('.yt-search-desc');
+                    if(desc) desc.classList.add('hidden');
+                    
+                    const sep = card.querySelector('.yt-separator');
+                    if(sep) sep.classList.add('hidden');
+                });
+            } else {
+                container.className = 'w-full bg-[#0f0f0f] rounded-2xl overflow-hidden border border-[#262626] flex h-[800px] transition-all duration-500';
+                sidebar.classList.remove('!hidden');
+                bottomNav.classList.add('hidden');
+                statusBar.classList.add('hidden');
+                headerSearch.classList.remove('hidden');
+                headerMobileIcons.classList.add('hidden');
+                headerMobileIcons.classList.remove('flex');
+                headerDesktopIcons.classList.remove('hidden');
+
+                if (surface === 'home') {
+                    grid.className = 'p-6 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-10';
+                    chips.classList.remove('hidden');
+                    chips.innerHTML = `
+                        <button class="px-3 py-1.5 bg-white text-black rounded-lg text-sm font-medium whitespace-nowrap">All</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Gaming</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Tech</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Music</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Live</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Finance</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Cooking</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Shorts</button>
+                        <button class="px-3 py-1.5 bg-[#27272a] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#3f3f46]">Trending</button>
+                    `;
+                } else if (surface === 'search') {
+                    grid.className = 'p-6 grid grid-cols-1 gap-y-4 max-w-5xl mx-auto w-full';
+                    chips.classList.remove('hidden');
+                    chips.innerHTML = `
+                        <button class="px-3 py-1.5 bg-white text-black rounded-lg text-sm font-medium whitespace-nowrap">All</button>
+                        <button class="px-3 py-1.5 bg-transparent border border-[#3f3f46] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#27272a]">Videos</button>
+                        <button class="px-3 py-1.5 bg-transparent border border-[#3f3f46] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#27272a]">Channels</button>
+                        <button class="px-3 py-1.5 bg-transparent border border-[#3f3f46] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#27272a]">Playlists</button>
+                        <button class="px-3 py-1.5 bg-transparent border border-[#3f3f46] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#27272a]">This week</button>
+                        <button class="px-3 py-1.5 bg-transparent border border-[#3f3f46] text-white rounded-lg text-sm font-medium whitespace-nowrap hover:bg-[#27272a]">Under 4 mins</button>
+                    `;
+                    
+                    const searchInput = document.querySelector('#headerSearchContainer input');
+                    if(searchInput) searchInput.value = document.getElementById('videoTitle').value || 'Your Video Title Here';
+                } else if (surface === 'suggested') {
+                    grid.className = 'p-6 grid grid-cols-1 gap-y-2';
+                    chips.classList.add('hidden');
+                    
+                    const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+                    videoPlayerContainer.classList.remove('hidden');
+                    videoPlayerContainer.classList.add('flex');
+                    
+                    const rightColumn = document.getElementById('rightColumn');
+                    rightColumn.classList.remove('w-full', 'flex-1');
+                    rightColumn.classList.add('w-[400px]', 'shrink-0');
+                    
+                    mainContentArea.classList.remove('flex-col');
+                    mainContentArea.classList.add('flex-row');
+                    
+                    header.classList.add('hidden');
+                    sidebar.classList.add('!hidden');
+                } else if (surface === 'notification') {
+                    grid.className = 'p-0 grid grid-cols-1 gap-y-0 w-[480px] bg-[#212121] rounded-xl ml-auto mt-4 mr-4 overflow-hidden flex flex-col';
+                    chips.classList.add('hidden');
+                    
+                    const notificationHeader = document.getElementById('notificationHeader');
+                    if(notificationHeader) {
+                        notificationHeader.classList.remove('hidden');
+                        notificationHeader.classList.add('w-[480px]', 'bg-[#212121]', 'rounded-t-xl', 'ml-auto', 'mt-4', 'mr-4', 'border-b', 'border-[#3f3f3f]');
+                        // We need to remove the mt-4 from grid if header is present to avoid double margin
+                        grid.classList.remove('mt-4', 'rounded-xl');
+                        grid.classList.add('rounded-b-xl');
+                    }
+                }
+                
+                if (surface !== 'suggested') {
+                    const videoPlayerContainer = document.getElementById('videoPlayerContainer');
+                    videoPlayerContainer.classList.add('hidden');
+                    videoPlayerContainer.classList.remove('flex');
+                    
+                    const rightColumn = document.getElementById('rightColumn');
+                    rightColumn.classList.add('w-full', 'flex-1');
+                    rightColumn.classList.remove('w-[400px]', 'shrink-0');
+                    
+                    mainContentArea.classList.add('flex-col');
+                    mainContentArea.classList.remove('flex-row');
+                    
+                    header.classList.remove('hidden');
+                    // sidebar visibility is handled above
+                }
+                
+                if (surface !== 'notification') {
+                    const notificationHeader = document.getElementById('notificationHeader');
+                    if(notificationHeader) notificationHeader.classList.add('hidden');
+                }
+                
+                chips.className = 'flex items-center gap-3 px-4 py-3 border-b border-[#262626] overflow-x-auto no-scrollbar shrink-0';
+                mainContent.className = surface === 'suggested' ? 'flex-1 flex flex-row overflow-hidden' : 'flex-1 flex flex-col overflow-y-auto';
+
+                document.querySelectorAll('.video-card').forEach(card => {
+                    if (surface === 'search') {
+                        card.classList.remove('flex-col', 'gap-3', 'gap-0', 'mb-4');
+                        card.classList.add('flex-row', 'gap-4');
+                        
+                        const thumbContainer = card.querySelector('.thumbnail-container');
+                        thumbContainer.classList.remove('w-full', 'w-[168px]', 'min-w-[168px]');
+                        thumbContainer.classList.add('w-[360px]', 'min-w-[360px]', 'rounded-xl');
+                        
+                        const details = card.querySelector('.video-details');
+                        details.classList.remove('p-3', 'pt-3', 'pr-6', 'pr-2');
+                        details.classList.add('py-1', 'pr-4');
+                        
+                        const avatar = card.querySelector('.rounded-full');
+                        if(avatar) avatar.classList.add('hidden');
+                        
+                        const desc = card.querySelector('.yt-search-desc');
+                        if(desc) desc.classList.remove('hidden');
+                        
+                        const sep = card.querySelector('.yt-separator');
+                        if(sep) sep.classList.remove('hidden');
+                        
+                        const title = card.querySelector('.yt-title');
+                        if(title) {
+                            title.classList.remove('text-sm');
+                            title.classList.add('text-base');
+                        }
+                        const subtitle = card.querySelector('.yt-subtitle-container');
+                        if(subtitle) {
+                            subtitle.classList.remove('text-xs');
+                            subtitle.classList.add('text-sm');
+                        }
+                    } else if (surface === 'suggested') {
+                        card.classList.remove('flex-col', 'gap-3', 'gap-0', 'mb-4', 'gap-4');
+                        card.classList.add('flex-row', 'gap-2');
+                        
+                        const thumbContainer = card.querySelector('.thumbnail-container');
+                        thumbContainer.classList.remove('w-full', 'w-[360px]', 'min-w-[360px]');
+                        thumbContainer.classList.add('w-[168px]', 'min-w-[168px]', 'rounded-xl');
+                        
+                        const details = card.querySelector('.video-details');
+                        details.classList.remove('p-3', 'pt-3', 'py-1', 'pr-4', 'pr-6');
+                        details.classList.add('pr-2');
+                        
+                        const avatar = card.querySelector('.rounded-full');
+                        if(avatar) avatar.classList.add('hidden');
+                        
+                        const desc = card.querySelector('.yt-search-desc');
+                        if(desc) desc.classList.add('hidden');
+                        
+                        const sep = card.querySelector('.yt-separator');
+                        if(sep) sep.classList.remove('hidden');
+                        
+                        const title = card.querySelector('.yt-title');
+                        if(title) {
+                            title.classList.remove('text-base');
+                            title.classList.add('text-sm');
+                        }
+                        const subtitle = card.querySelector('.yt-subtitle-container');
+                        if(subtitle) {
+                            subtitle.classList.remove('text-sm');
+                            subtitle.classList.add('text-xs');
+                        }
+                    } else if (surface === 'notification') {
+                        card.classList.remove('flex-col', 'gap-3', 'gap-0', 'mb-4', 'gap-2');
+                        card.classList.add('flex-row', 'gap-4', 'p-4', 'hover:bg-[#383838]', 'items-start');
+                        
+                        const thumbContainer = card.querySelector('.thumbnail-container');
+                        thumbContainer.classList.remove('w-full', 'w-[360px]', 'min-w-[360px]', 'w-[168px]', 'min-w-[168px]');
+                        thumbContainer.classList.add('w-[86px]', 'min-w-[86px]', 'h-[48px]', 'rounded', 'order-3');
+                        
+                        const details = card.querySelector('.video-details');
+                        details.classList.remove('p-3', 'pt-3', 'py-1', 'pr-4', 'pr-6', 'pr-2');
+                        details.classList.add('flex-1', 'order-1', 'pr-0');
+                        
+                        const avatar = card.querySelector('.rounded-full');
+                        if(avatar) avatar.classList.remove('hidden');
+                        
+                        const desc = card.querySelector('.yt-search-desc');
+                        if(desc) desc.classList.add('hidden');
+                        
+                        const sep = card.querySelector('.yt-separator');
+                        if(sep) sep.classList.add('hidden');
+                        
+                        const title = card.querySelector('.yt-title');
+                        if(title) {
+                            title.classList.add('hidden');
+                        }
+                        
+                        const subtitle = card.querySelector('.yt-subtitle-container');
+                        if(subtitle) {
+                            subtitle.classList.add('hidden');
+                        }
+                        
+                        const notifText = card.querySelector('.yt-notification-text');
+                        if(notifText) notifText.classList.remove('hidden');
+                        
+                        const notifTime = card.querySelector('.yt-notification-time');
+                        if(notifTime) notifTime.classList.remove('hidden');
+                        
+                        const videoTitleInput = card.querySelector('#videoTitle');
+                        if(videoTitleInput) videoTitleInput.classList.add('hidden');
+                        
+                    } else {
+                        card.classList.add('flex-col', 'gap-3');
+                        card.classList.remove('flex-row', 'gap-4', 'gap-0', 'mb-4', 'gap-2', 'p-4', 'hover:bg-[#383838]', 'items-start');
+                        
+                        const thumbContainer = card.querySelector('.thumbnail-container');
+                        thumbContainer.classList.add('w-full', 'rounded-xl');
+                        thumbContainer.classList.remove('w-[360px]', 'min-w-[360px]', 'w-[168px]', 'min-w-[168px]', 'w-[86px]', 'min-w-[86px]', 'h-[48px]', 'rounded', 'order-3');
+                        
+                        const details = card.querySelector('.video-details');
+                        details.classList.remove('p-3', 'pt-3', 'py-1', 'pr-4', 'pr-2', 'flex-1', 'order-1', 'pr-0');
+                        details.classList.add('pr-6');
+                        
+                        const avatar = card.querySelector('.rounded-full');
+                        if(avatar) avatar.classList.remove('hidden');
+                        
+                        const desc = card.querySelector('.yt-search-desc');
+                        if(desc) desc.classList.add('hidden');
+                        
+                        const sep = card.querySelector('.yt-separator');
+                        if(sep) sep.classList.add('hidden');
+                        
+                        const title = card.querySelector('.yt-title');
+                        if(title) {
+                            title.classList.remove('hidden', 'text-sm');
+                            title.classList.add('text-base');
+                        }
+                        const subtitle = card.querySelector('.yt-subtitle-container');
+                        if(subtitle) {
+                            subtitle.classList.remove('hidden', 'text-xs');
+                            subtitle.classList.add('text-sm');
+                        }
+                        
+                        const notifText = card.querySelector('.yt-notification-text');
+                        if(notifText) notifText.classList.add('hidden');
+                        
+                        const notifTime = card.querySelector('.yt-notification-time');
+                        if(notifTime) notifTime.classList.add('hidden');
+                        
+                        const videoTitleInput = card.querySelector('#videoTitle');
+                        if(videoTitleInput) videoTitleInput.classList.remove('hidden');
+                    }
+                });
+            }
+        }
+
+        function setTheme(theme) {
+            currentTheme = theme;
+            const container = document.getElementById('feedContainer');
+            const btnDark = document.getElementById('btnDark');
+            const btnLight = document.getElementById('btnLight');
+            
+            if (theme === 'dark') {
+                container.classList.remove('yt-light-theme');
+                btnDark.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2e1065] text-[#d8b4fe] text-xs font-semibold border border-[#4c1d95]';
+                btnLight.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]';
+            } else {
+                container.classList.add('yt-light-theme');
+                btnLight.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-[#2e1065] text-[#d8b4fe] text-xs font-semibold border border-[#4c1d95]';
+                btnDark.className = 'flex items-center gap-2 px-3 py-1.5 rounded-md bg-transparent text-[#a1a1aa] text-xs font-semibold border border-[#3f3f46] hover:bg-[#27272a]';
+            }
+        }
+
+        function toggleAB(showB) {
+            isShowingB = showB;
+            const userThumbnail = document.getElementById('userThumbnail');
+            const placeholder = document.getElementById('userThumbnailPlaceholder');
+            const placeholderText = document.getElementById('userThumbnailPlaceholderText');
+            const badgeA = document.getElementById('badgeA');
+            const badgeB = document.getElementById('badgeB');
+            
+            const videoPlayerImage = document.getElementById('videoPlayerImage');
+            const videoPlayerPlaceholder = document.getElementById('videoPlayerPlaceholder');
+
+            if (showB) {
+                badgeA.classList.add('hidden');
+                badgeB.classList.remove('hidden');
+                placeholderText.textContent = 'UPLOAD DESIGN B';
+                
+                if (imageBUrl) {
+                    userThumbnail.src = imageBUrl;
+                    userThumbnail.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    
+                    videoPlayerImage.src = imageBUrl;
+                    videoPlayerImage.classList.remove('hidden');
+                    videoPlayerPlaceholder.classList.add('hidden');
+                } else {
+                    userThumbnail.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                    
+                    videoPlayerImage.classList.add('hidden');
+                    videoPlayerPlaceholder.classList.remove('hidden');
+                }
+            } else {
+                badgeA.classList.remove('hidden');
+                badgeB.classList.add('hidden');
+                placeholderText.textContent = 'UPLOAD DESIGN A';
+                
+                if (imageAUrl) {
+                    userThumbnail.src = imageAUrl;
+                    userThumbnail.classList.remove('hidden');
+                    placeholder.classList.add('hidden');
+                    
+                    videoPlayerImage.src = imageAUrl;
+                    videoPlayerImage.classList.remove('hidden');
+                    videoPlayerPlaceholder.classList.add('hidden');
+                } else {
+                    userThumbnail.classList.add('hidden');
+                    placeholder.classList.remove('hidden');
+                    
+                    videoPlayerImage.classList.add('hidden');
+                    videoPlayerPlaceholder.classList.remove('hidden');
+                }
+            }
+        }
+
+        // Spacebar listener for Blink Test
+        document.addEventListener('keydown', (e) => {
+            if (e.code === 'Space' && e.target.tagName !== 'INPUT') {
+                e.preventDefault();
+                toggleAB(!isShowingB);
+            }
+        });
+    </script>
+    <script src="/global-ui.js"></script>
+</body>
+</html>
